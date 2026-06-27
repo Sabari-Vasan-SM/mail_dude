@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/email_model.dart';
 import '../services/firebase_service.dart';
 import '../services/search_service.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/email_card.dart';
 import '../widgets/custom_search_bar.dart';
 import '../widgets/empty_state.dart';
@@ -48,6 +49,7 @@ class _EmailListScreenState extends State<EmailListScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,9 +61,7 @@ class _EmailListScreenState extends State<EmailListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              // Focus search bar if needed
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -103,10 +103,20 @@ class _EmailListScreenState extends State<EmailListScreen> {
                   );
                 }
 
-                final emails = snapshot.data ?? [];
+                var emails = snapshot.data ?? [];
+                
+                // Filter out locally deleted emails
+                emails = emails.where((email) => !settingsProvider.isDeleted(email.id)).toList();
+                
+                // Filter by tabs (Starred)
+                if (_currentIndex == 1) { // Starred tab
+                  emails = emails.where((email) => settingsProvider.isStarred(email.id)).toList();
+                }
+
+                // Filter by search query
                 final filteredEmails = SearchService.filterEmails(emails, _searchQuery);
 
-                if (filteredEmails.isEmpty && _searchQuery.isEmpty) {
+                if (filteredEmails.isEmpty) {
                   return EmptyState(onRefresh: _handleRefresh);
                 }
 
@@ -118,10 +128,16 @@ class _EmailListScreenState extends State<EmailListScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                       child: Row(
                         children: [
-                          Icon(Icons.mail_outline, size: 20, color: theme.colorScheme.primary),
+                          Icon(
+                            _currentIndex == 1 ? Icons.star : Icons.mail_outline, 
+                            size: 20, 
+                            color: theme.colorScheme.primary,
+                          ),
                           const SizedBox(width: 8),
                           Text(
-                            'EMAILS (${filteredEmails.length})',
+                            _currentIndex == 1 
+                                ? 'STARRED (${filteredEmails.length})'
+                                : 'EMAILS (${filteredEmails.length})',
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -184,8 +200,6 @@ class _EmailListScreenState extends State<EmailListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: Colors.white,
         child: const Icon(Icons.edit),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -197,7 +211,8 @@ class _EmailListScreenState extends State<EmailListScreen> {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.mail),
+            icon: Icon(Icons.mail_outline),
+            activeIcon: Icon(Icons.mail),
             label: 'Emails',
           ),
           BottomNavigationBarItem(

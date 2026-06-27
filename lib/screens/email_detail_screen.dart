@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/email_model.dart';
-import '../services/firebase_service.dart';
 import 'package:provider/provider.dart';
+import '../models/email_model.dart';
+import '../providers/settings_provider.dart';
 
 class EmailDetailScreen extends StatelessWidget {
   final Email email;
@@ -26,6 +26,9 @@ class EmailDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final isStarred = settingsProvider.isStarred(email.id);
+
     final String initial = email.senderName.isNotEmpty ? email.senderName[0].toUpperCase() : '?';
     final avatarColor = _getAvatarColor(email.senderName);
 
@@ -70,9 +73,11 @@ class EmailDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.star_border),
-                      color: Colors.grey.shade600,
-                      onPressed: () {},
+                      icon: Icon(
+                        isStarred ? Icons.star : Icons.star_border,
+                        color: isStarred ? Colors.amber : Colors.grey.shade600,
+                      ),
+                      onPressed: () => settingsProvider.toggleStar(email.id),
                     ),
                   ],
                 ),
@@ -89,7 +94,7 @@ class EmailDetailScreen extends StatelessWidget {
                           ? Colors.grey.shade800 
                           : Colors.grey.shade300,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +204,23 @@ class EmailDetailScreen extends StatelessWidget {
                   spacing: 12,
                   runSpacing: 12,
                   children: [
-                    _buildActionButton(context, Icons.reply, 'Reply', theme.colorScheme.primary),
-                    _buildActionButton(context, Icons.forward, 'Forward', theme.colorScheme.primary),
-                    _buildActionButton(context, Icons.share, 'Share', theme.colorScheme.primary),
-                    _buildActionButton(context, Icons.star_border, 'Star', Colors.grey.shade700),
-                    _buildActionButton(context, Icons.delete_outline, 'Delete', Colors.red, onPressed: () {
-                      Provider.of<FirebaseService>(context, listen: false).deleteEmail(email.id);
-                      Navigator.pop(context);
-                    }),
-                    _buildActionButton(context, Icons.report_problem_outlined, 'Report', Colors.orange),
+                    _buildActionButton(
+                      context,
+                      isStarred ? Icons.star : Icons.star_border, 
+                      isStarred ? 'Starred' : 'Star', 
+                      isStarred ? Colors.amber : Colors.grey.shade700,
+                      onPressed: () => settingsProvider.toggleStar(email.id),
+                    ),
+                    _buildActionButton(
+                      context, 
+                      Icons.delete_outline, 
+                      'Delete', 
+                      Colors.red, 
+                      onPressed: () {
+                        settingsProvider.deleteEmail(email.id);
+                        Navigator.pop(context);
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),

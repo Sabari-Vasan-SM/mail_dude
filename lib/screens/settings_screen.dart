@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../themes/theme_provider.dart';
+import '../providers/settings_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     final theme = Theme.of(context);
 
     // Determine current brightness correctly including system default
-    final isDarkMode = themeProvider.themeMode == ThemeMode.dark ||
-        (themeProvider.themeMode == ThemeMode.system &&
+    final isDarkMode = settingsProvider.themeMode == ThemeMode.dark ||
+        (settingsProvider.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return Scaffold(
@@ -34,9 +34,19 @@ class SettingsScreen extends StatelessWidget {
             subtitle: const Text('Toggle dark and light theme'),
             value: isDarkMode,
             onChanged: (value) {
-              themeProvider.toggleTheme(value);
+              settingsProvider.setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
             },
             secondary: Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode),
+            activeColor: theme.colorScheme.primary,
+          ),
+          SwitchListTile(
+            title: const Text('Dynamic Colors'),
+            subtitle: const Text('Match UI colors with your wallpaper (Android 12+)'),
+            value: settingsProvider.useDynamicColor,
+            onChanged: (value) {
+              settingsProvider.setUseDynamicColor(value);
+            },
+            secondary: const Icon(Icons.color_lens),
             activeColor: theme.colorScheme.primary,
           ),
           const Divider(),
