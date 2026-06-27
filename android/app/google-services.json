@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "334711603082",
+    "firebase_url": "https://maildude-c856b-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "maildude-c856b",
+    "storage_bucket": "maildude-c856b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334711603082:android:780c483bdffd8ff9119273",
+        "android_client_info": {
+          "package_name": "com.example.mail_dude"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC10yqVFWFeGwfg0NacmryZRkuWzZjIWps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
