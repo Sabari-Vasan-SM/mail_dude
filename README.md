@@ -212,10 +212,10 @@ Set your Firebase database rules to test mode initially:
 Create a `.env` file in the project root:
 
 ```
-FIREBASE_PROJECT_ID=maildude-c856b
-FIREBASE_API_KEY=your_api_key_here
-FIREBASE_AUTH_DOMAIN=maildude-c856b.firebaseapp.com
-FIREBASE_DATABASE_URL=https://maildude-c856b-default-rtdb.asia-southeast1.firebasedatabase.app
+FIREBASE_PROJECT_ID=PUT YOURS
+FIREBASE_API_KEY=PUT YOURS
+FIREBASE_AUTH_DOMAIN=PUT YOURS
+FIREBASE_DATABASE_URL=PUT YOURS
 ```
 
 ---
