@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/email_model.dart';
@@ -23,16 +25,31 @@ class _EmailListScreenState extends State<EmailListScreen> {
   String _searchQuery = '';
   late final FirebaseService _firebaseService;
   int _currentIndex = 0;
+  StreamSubscription<RemoteMessage>? _messageSubscription;
 
   @override
   void initState() {
     super.initState();
     _firebaseService = Provider.of<FirebaseService>(context, listen: false);
+
+    _messageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${message.notification?.title ?? 'New Email'}\n${message.notification?.body ?? ''}'),
+            duration: const Duration(seconds: 4),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _messageSubscription?.cancel();
     super.dispose();
   }
 

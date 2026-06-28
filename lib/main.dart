@@ -3,6 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'services/notification_service.dart';
 
 import 'themes/app_theme.dart';
 import 'providers/settings_provider.dart';
@@ -12,7 +15,9 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
 
@@ -20,6 +25,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Initialize Firebase Messaging
+    await NotificationService().initialize();
   } catch (e) {
     print('Firebase initialization error: $e');
   }
